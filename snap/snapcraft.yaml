@@ -1,0 +1,42 @@
+name: extract-deb
+version: '0.1'
+summary: Extract a .deb package
+description: |
+  A simple wrapper to dpkg -x to extract .deb packages in a subdirectory
+  of your home.
+
+grade: devel
+confinement: strict
+
+apps:
+  extract-deb:
+    command: extract-deb
+    plugs:
+      - home
+parts:
+  dpkg:
+    plugin: nil
+    build: |
+      apt-get source dpkg
+      cd dpkg-*
+      sed -i 's/CONFIGDIR/getenv("$SNAP")/' lib/dpkg/options.c
+      fakeroot debian/rules binary
+    install: |
+      cp extract-deb $SNAPCRAFT_PART_INSTALL/
+      dpkg -x dpkg_*.deb $SNAPCRAFT_PART_INSTALL/
+      mv $SNAPCRAFT_PART_INSTALL/etc/dpkg/* $SNAPCRAFT_PART_INSTALL/
+    build-packages:
+      - fakeroot
+      - dpkg-dev
+      - dpkg
+      - debhelper
+      - pkg-config
+      - flex
+      - gettext
+      - po4a
+      - zlib1g-dev
+      - libbz2-dev
+      - liblzma-dev
+      - libselinux1-dev
+      - libncursesw5-dev
+      - libio-string-perl
