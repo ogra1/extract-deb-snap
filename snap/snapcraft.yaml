@@ -9,6 +9,10 @@ description: |
   an UbuntuCore system.
   .
   The source can be found at https://github.com/ogra1/extract-deb-snap
+  .
+  Note that you need to connect the home interface first when using this
+  tool on an UbuntuCore system with the command
+  snap connect extract-deb:home
 
 grade: stable
 confinement: strict
