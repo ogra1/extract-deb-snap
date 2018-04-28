@@ -10,7 +10,7 @@ description: |
   .
   The source can be found at https://github.com/ogra1/extract-deb-snap
 
-grade: devel
+grade: stable
 confinement: strict
 
 apps:
