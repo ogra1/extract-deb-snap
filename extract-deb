@@ -1,5 +1,5 @@
 #! /bin/sh
 
-[ -e "$SNAP_USER_DATA/.dpkg.cfg" ] || cp "$SNAP/etc/dpkg/dpkg.cfg" "$SNAP_USER_DATA/.dpkg.cfg"
+[ -e "$SNAP_USER_DATA/.dpkg.cfg" ] || cp "$SNAP/dpkg.cfg" "$SNAP_USER_DATA/.dpkg.cfg"
 
 dpkg -x $@
