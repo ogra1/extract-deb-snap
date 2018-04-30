@@ -1,0 +1,82 @@
+#! /bin/sh
+
+# dowloads and unpacks .deb packages for defined arch
+# this needs coreutils, dctrl-tools and wget added to
+# stage-packages when used via snapcraft.yaml
+
+set -e
+
+OUT="unpack"
+
+case "$(uname -m)" in
+    armv7)
+        ARCH="armhf"
+        ;;
+    aarch64)
+        ARCH="arm64"
+        ;;
+    i*86)
+        ARCH="i386"
+        ;;
+    x86_64)
+        ARCH="amd64"
+        ;;
+esac
+
+for opt in "$@"; do
+    case $opt in
+        -a|--arch)
+            ARCH="$2"
+            shift; shift
+            ;;
+        -d|--dir)
+            OUT="$2"
+            shift; shift
+            ;;
+        -*)
+            echo "unknown option: $1"
+            exit 0
+        ;;
+    esac
+done
+
+PKGLIST="$@"
+
+[ -n "$PKGLIST" ] || (echo "need package names !" && kill $$)
+[ -n "$ARCH" ] || (echo "need an architecture !" && kill $$)
+
+echo "$(basename "$0"): obtaining packages for $ARCH: $PKGLIST"
+
+case $ARCH in
+    armhf|arm64)
+        SERVER="http://ports.ubuntu.com/ubuntu-ports"
+        ;;
+    *)
+        SERVER="http://archive.ubuntu.com/ubuntu"
+        ;;
+esac
+
+for pkg in $PKGLIST; do
+    PKGPATH=""
+    for POCKET in universe main; do
+        CFG="--config=$SNAP/etc/wgetrc"
+        PACKAGES="$SERVER/dists/xenial/$POCKET/binary-$ARCH/Packages.gz"
+        UPACKAGES="$SERVER/dists/xenial-updates/$POCKET/binary-$ARCH/Packages.gz"
+        if wget "$CFG" -q -O- "$UPACKAGES" | zcat | grep-dctrl -P "${pkg}" |\
+           grep Filename | grep -q "/${pkg}_"; then
+            PKGPATH="$(wget "$CFG" -q -O- "$UPACKAGES" | zcat | grep-dctrl -P "${pkg}" |\
+                grep Filename | grep "${pkg}_" | sed 's/^Filename: //')"
+        elif wget "$CFG" -q -O- "$PACKAGES" | zcat | grep-dctrl -P "${pkg}" |\
+             grep Filename | grep -q "/${pkg}_"; then
+            PKGPATH="$(wget "$CFG" -q -O- "$PACKAGES" | zcat | grep-dctrl -P "${pkg}" |\
+                grep Filename | grep "${pkg}_" | sed 's/^Filename: //')"
+        else
+            PKGPATH=""
+        fi
+        if [ -n "$PKGPATH" ]; then
+            echo "unpacking $pkg from $SERVER/$PKGPATH to $OUT/"
+            wget "$CFG" -q -O- $SERVER/$PKGPATH | dpkg -x - "$OUT/"
+        fi
+    done
+	[ -z "$PKGPATH" ] && echo "no package found for $pkg"
+done
