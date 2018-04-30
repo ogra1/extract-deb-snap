@@ -43,6 +43,7 @@ parts:
       cp ../../../download $SNAPCRAFT_PART_INSTALL/
     build-packages:
       - autoconf
+      - autopoint
       - fakeroot
       - dpkg-dev
       - dpkg
