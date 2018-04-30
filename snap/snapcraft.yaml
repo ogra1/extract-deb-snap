@@ -42,6 +42,7 @@ parts:
       cp ../../../extract-deb $SNAPCRAFT_PART_INSTALL/
       cp ../../../download $SNAPCRAFT_PART_INSTALL/
     build-packages:
+      - autoconf
       - fakeroot
       - dpkg-dev
       - dpkg
