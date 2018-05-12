@@ -1,5 +1,5 @@
 name: extract-deb
-version: '0.1'
+version: '0.1-1'
 summary: Extract a .deb package
 description: |
   A simple wrapper to dpkg -x to extract .deb packages in a subdirectory
